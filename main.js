@@ -9,7 +9,8 @@ function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 1280,
         height: 850,
-        webPreferences: {
+        icon: path.join(__dirname, 'icon.png'),
+            webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js')

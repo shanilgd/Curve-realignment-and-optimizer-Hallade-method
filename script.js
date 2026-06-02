@@ -358,8 +358,8 @@ function renderTable() {
         
         tr.innerHTML = `
             <td>${row.stn}</td>
-            <td><input type="number" class="cell-input cell-exg" data-idx="${idx}" value="${row.exg}"></td>
-            <td><input type="number" class="cell-input cell-pro" data-idx="${idx}" value="${row.pro}"></td>
+            <td><input type="number" class="cell-input cell-exg" data-idx="${idx}" value="${row.exg !== 0 ? row.exg : ''}" placeholder="0"></td>
+            <td><input type="number" class="cell-input cell-pro" data-idx="${idx}" value="${row.pro !== 0 ? row.pro : ''}" placeholder="0"></td>
             <td><input type="number" class="cell-input cell-max-in" data-idx="${idx}" placeholder="-" value="${row.maxIn !== undefined ? row.maxIn : ''}"></td>
             <td><input type="number" class="cell-input cell-max-out" data-idx="${idx}" placeholder="-" value="${row.maxOut !== undefined ? row.maxOut : ''}"></td>
             <td class="text-center hover-cell" data-idx="${idx}" data-col="D">${row.diff}</td>
@@ -581,3 +581,81 @@ tableBody.addEventListener('mouseout', (e) => {
           }
       });
   }
+
+  // UI and Modals Logic
+  window.electronAPI.getVersion().then(v => {
+      document.getElementById('app-version-tag').textContent = `v${v}`;
+  });
+
+  const updateModal = document.getElementById('update-modal');
+  const manualModal = document.getElementById('manual-modal');
+  const changelogModal = document.getElementById('changelog-modal');
+  const creditsModal = document.getElementById('credits-modal');
+
+  document.getElementById('btn-check-updates').addEventListener('click', () => {
+      const btn = document.getElementById('btn-check-updates');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
+      btn.disabled = true;
+      window.electronAPI.checkForUpdates();
+      
+      setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+      }, 3000); // Re-enable button after timeout if no response
+  });
+
+  document.getElementById('btn-help').addEventListener('click', () => {
+      manualModal.classList.remove('hidden');
+  });
+  document.getElementById('close-manual').addEventListener('click', () => {
+      manualModal.classList.add('hidden');
+  });
+
+  document.getElementById('btn-changelog').addEventListener('click', () => {
+      changelogModal.classList.remove('hidden');
+  });
+  document.getElementById('close-changelog').addEventListener('click', () => {
+      changelogModal.classList.add('hidden');
+  });
+
+  document.getElementById('btn-credits').addEventListener('click', () => {
+      creditsModal.classList.remove('hidden');
+  });
+  document.getElementById('close-credits').addEventListener('click', () => {
+      creditsModal.classList.add('hidden');
+  });
+
+  // Updater logic
+  window.electronAPI.onUpdateAvailable((version) => {
+      const btn = document.getElementById('btn-check-updates');
+      btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down" style="color: #60a5fa;"></i> Updates';
+      btn.disabled = false;
+      
+      document.getElementById('update-version-text').textContent = `Version ${version} is available!`;
+      updateModal.classList.remove('hidden');
+  });
+
+  document.getElementById('btn-update-cancel').addEventListener('click', () => {
+      updateModal.classList.add('hidden');
+  });
+
+  document.getElementById('btn-update-download').addEventListener('click', () => {
+      document.getElementById('update-action-container').classList.add('hidden');
+      document.getElementById('update-progress-container').classList.remove('hidden');
+      window.electronAPI.downloadUpdate();
+  });
+
+  window.electronAPI.onUpdateProgress((percent) => {
+      document.getElementById('update-progress-fill').style.width = `${percent}%`;
+      document.getElementById('update-progress-text').textContent = `Downloading: ${Math.round(percent)}%`;
+  });
+
+  window.electronAPI.onUpdateDownloaded(() => {
+      document.getElementById('update-progress-container').classList.add('hidden');
+      document.getElementById('update-install-container').classList.remove('hidden');
+  });
+
+  document.getElementById('btn-update-install').addEventListener('click', () => {
+      window.electronAPI.installUpdate();
+  });
