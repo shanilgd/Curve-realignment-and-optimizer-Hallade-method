@@ -662,3 +662,12 @@ tableBody.addEventListener('mouseout', (e) => {
   document.getElementById('btn-update-install').addEventListener('click', () => {
       window.electronAPI.installUpdate();
   });
+
+window.electronAPI.onUpdateNotAvailable(() => {
+    const btn = document.getElementById('btn-check-updates');
+    if(btn) {
+        btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> Updates';
+        btn.disabled = false;
+    }
+    showStatus("You are using the latest version", "success");
+});
