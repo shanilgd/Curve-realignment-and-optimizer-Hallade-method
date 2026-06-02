@@ -1,4 +1,4 @@
-﻿// Global data structure
+// Global data structure
 let curveData = [];
 
 // Chart instances
@@ -190,9 +190,9 @@ async function handleExcelImport() {
         btnOptimize.disabled = false;
         btnExportExcel.disabled = false;
         
-        showStatus("Excel data imported successfully!", "success");
+        showToast("Excel data imported successfully!", "success");
     } else {
-        showStatus(`Import failed: ${result.error}`, "error");
+        showToast(`Import failed: ${result.error}`, "error");
     }
 }
 
@@ -202,9 +202,9 @@ btnImportExcelHeader.addEventListener('click', handleExcelImport);
 btnDownloadTemplate.addEventListener('click', async () => {
     const result = await window.electronAPI.downloadTemplate();
     if (result && result.success) {
-        showStatus("Template downloaded successfully!", "success");
+        showToast("Template downloaded successfully!", "success");
     } else if (result && result.error) {
-        showStatus(`Template download failed: ${result.error}`, "error");
+        showToast(`Template download failed: ${result.error}`, "error");
     }
 });
 
@@ -460,7 +460,32 @@ function updateCharts() {
 }
 
 // Show Status banner
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('global-toast');
+    if (!toast) return;
+    toast.textContent = message;
+    
+    toast.className = 'fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-medium shadow-lg transition-all duration-300 z-[100] pointer-events-none transform translate-y-0 opacity-100';
+    
+    if (type === 'error') {
+        toast.classList.add('bg-red-500');
+    } else if (type === 'success') {
+        toast.classList.add('bg-green-500');
+    } else {
+        toast.classList.add('bg-blue-500');
+    }
+    
+    setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-[-20px]');
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 300);
+    }, 4000);
+}
+
 function showStatus(msg, type) {
+
     optStatus.textContent = msg;
     optStatus.className = `status-msg ${type}`;
 }
@@ -669,5 +694,13 @@ window.electronAPI.onUpdateNotAvailable(() => {
         btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> Updates';
         btn.disabled = false;
     }
-    showStatus("You are using the latest version", "success");
+    showToast("You are using the latest version", "success"); console.log("UPDATE NOT AVAILABLE FIRED!");
+});
+window.electronAPI.onUpdateError((err) => {
+    const btn = document.getElementById('btn-check-updates');
+    if(btn) {
+        btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> Updates';
+        btn.disabled = false;
+    }
+    showToast("Update error: " + err, "error");
 });
