@@ -28,64 +28,67 @@ app.whenReady().then(() => {
 
     let isManualUpdateCheck = false;
 
+    autoUpdater.autoDownload = false;
+
     ipcMain.handle('check-for-updates', async () => {
-        isManualUpdateCheck = true;
         try {
+            if (!app.isPackaged) {
+                // Simulate an update in Dev mode for testing
+                setTimeout(() => mainWindow.webContents.send('update-available', '1.0.6-dev'), 1500);
+                return { success: true };
+            }
             await autoUpdater.checkForUpdates();
             return { success: true };
         } catch (error) {
-            isManualUpdateCheck = false;
             return { success: false, error: error.message };
         }
     });
 
-    autoUpdater.on('update-not-available', () => {
-        if (isManualUpdateCheck) {
-            dialog.showMessageBox({
-                type: 'info',
-                title: 'Up to Date',
-                message: 'You are already running the latest version.'
-            });
-            isManualUpdateCheck = false;
+    ipcMain.handle('download-update', async () => {
+        if (!app.isPackaged) {
+            // Simulate download progress in Dev mode
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                mainWindow.webContents.send('update-progress', progress);
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    mainWindow.webContents.send('update-downloaded');
+                }
+            }, 500);
+            return { success: true };
         }
+        autoUpdater.downloadUpdate();
+        return { success: true };
     });
 
-    autoUpdater.on('error', (err) => {
-        if (isManualUpdateCheck) {
-            dialog.showMessageBox({
-                type: 'error',
-                title: 'Update Error',
-                message: 'Error checking for updates: ' + err.message
-            });
-            isManualUpdateCheck = false;
+    ipcMain.handle('install-update', () => {
+        if (!app.isPackaged) {
+            app.quit();
+            return;
         }
+        autoUpdater.quitAndInstall();
     });
 
-    autoUpdater.on('update-available', () => {
-        dialog.showMessageBox({
-            type: 'info',
-            title: 'Update Available',
-            message: 'A new version is available. Downloading now...'
-        });
+    autoUpdater.on('update-available', (info) => {
+        mainWindow.webContents.send('update-available', info.version);
+    });
+
+    autoUpdater.on('download-progress', (progressObj) => {
+        mainWindow.webContents.send('update-progress', progressObj.percent);
     });
 
     autoUpdater.on('update-downloaded', () => {
-        dialog.showMessageBox({
-            type: 'info',
-            title: 'Update Ready',
-            message: 'Update downloaded. The application will restart to install.',
-            buttons: ['Restart Now', 'Later']
-        }).then((result) => {
-            if (result.response === 0) {
-                autoUpdater.quitAndInstall();
-            }
-        });
+        mainWindow.webContents.send('update-downloaded');
     });
+
 
     app.on('activate', function () {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
 });
+
+ipcMain.handle('get-version', () => app.getVersion());
 
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit();
@@ -234,6 +237,7 @@ ipcMain.handle('download-template', async (event) => {
         defaultPath: 'Curve_Realignment_Template.xlsx',
         filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
     });
+
     if (canceled || !filePath) {
         return { success: false, canceled: true };
     }
@@ -264,3 +268,5 @@ ipcMain.handle('download-template', async (event) => {
         return { success: false, error: e.message };
     }
 });
+
+

@@ -30,31 +30,38 @@
                 <p class="subtitle">High-Speed Railway Curve Realignment and Slew Optimizer</p>
             </div>
             <div class="header-buttons">
-                <button id="btn-download-template" class="btn secondary">
-                    <i class="fa-solid fa-file-excel" style="color: #10b981;"></i> Download Template
-                </button>
-                <button id="btn-import-excel" class="btn secondary">
-                    <i class="fa-solid fa-file-import" style="color: #10b981;"></i> Import Excel
-                </button>
-                <button id="btn-export-excel" class="btn secondary" disabled>
-                    <i class="fa-solid fa-download" style="color: #60a5fa;"></i> Export Excel
-                </button>
-                <button id="btn-clear" class="btn danger">
-                    <i class="fa-solid fa-trash-can"></i> Clear
-                </button>
-                <button id="btn-check-updates" class="btn secondary" style="background: rgba(139, 92, 246, 0.2); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.3);" title="Check for Updates">
-                    <i class="fa-solid fa-cloud-arrow-down" style="color: #60a5fa;"></i> Updates
-                </button>
-                <button id="btn-credits" class="btn secondary" style="background: rgba(251, 191, 36, 0.2); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.3);" title="Credits">
-                    <i class="fa-solid fa-star" style="color: #fbbf24;"></i> Credits
-                </button>
-                <button id="btn-changelog" class="btn secondary" style="background: rgba(52, 211, 153, 0.2); color: #a7f3d0; border: 1px solid rgba(52, 211, 153, 0.3);" title="View Change log">
-                    <i class="fa-solid fa-list" style="color: #34d399;"></i> Change log
-                </button>
-                <button id="btn-help" class="btn secondary" style="background: rgba(167, 139, 250, 0.2); color: #ddd6fe; border: 1px solid rgba(167, 139, 250, 0.3); border-radius: 50%; width: 42px; height: 42px; display: flex; justify-content: center; align-items: center;" title="Help & Instructions">
-                    <i class="fa-solid fa-circle-question" style="color: #a78bfa; font-size: 1.2rem;"></i>
-                </button>
-            </div>
+                  <!-- Data Buttons -->
+                  <div style="display: flex; gap: 8px; margin-right: 20px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 20px;">
+                      <button id="btn-download-template" class="btn secondary">
+                          <i class="fa-solid fa-file-excel" style="color: #10b981;"></i> Download Template
+                      </button>
+                      <button id="btn-import-excel" class="btn secondary">
+                          <i class="fa-solid fa-file-import" style="color: #10b981;"></i> Import Excel
+                      </button>
+                      <button id="btn-export-excel" class="btn secondary" disabled>
+                          <i class="fa-solid fa-download" style="color: #60a5fa;"></i> Export Excel
+                      </button>
+                      <button id="btn-clear" class="btn danger">
+                          <i class="fa-solid fa-trash-can"></i> Clear
+                      </button>
+                  </div>
+
+                  <!-- Meta Buttons -->
+                  <div class="header-actions">
+                      <button id="btn-check-updates" class="btn-modern btn-update" title="Check for Updates">
+                          <i class="fa-solid fa-cloud-arrow-down"></i> Updates
+                      </button>
+                      <button id="btn-credits" class="btn-modern btn-icon-only btn-credits" title="Credits">
+                          <i class="fa-solid fa-star"></i>
+                      </button>
+                      <button id="btn-changelog" class="btn-modern btn-icon-only btn-changelog" title="View Change log">
+                          <i class="fa-solid fa-list"></i>
+                      </button>
+                      <button id="btn-help" class="btn-modern btn-icon-only btn-help" title="Help & Instructions">
+                          <i class="fa-solid fa-circle-question"></i>
+                      </button>
+                  </div>
+              </div>
         </header>
 
         <main class="main-grid">
@@ -197,7 +204,7 @@
 
     <div id="custom-tooltip" class="calc-tooltip"></div>
     <!-- Script Entry -->
-    <script src="script.js"></script>
+    
 
     <!-- Update Modal -->
     <div id="update-modal" class="modal hidden">
@@ -277,5 +284,6 @@
         </div>
     </div>
 
+    <script src="script.js"></script>
 </body>
 </html>
