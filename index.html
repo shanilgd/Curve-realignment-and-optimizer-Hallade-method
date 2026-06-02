@@ -201,35 +201,41 @@
 
     <!-- Update Modal -->
     <div id="update-modal" class="modal hidden">
-        <div class="modal-content" style="max-width: 400px; text-align: center;">
-            <div class="modal-header" style="justify-content: center;">
-                <h2><i class="fa-solid fa-cloud-arrow-down" style="color: #60a5fa;"></i> Update Available</h2>
+        <div class="modal-modern">
+            <div style="width: 60px; height: 60px; background: rgba(59, 130, 246, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; border: 1px solid rgba(59, 130, 246, 0.3); box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);">
+                <i class="fa-solid fa-rocket" style="font-size: 1.8rem; color: #60a5fa;"></i>
             </div>
-            <div class="modal-body" style="padding: 20px 0;">
-                <p id="update-version-text" style="font-size: 1.2rem; margin-bottom: 20px; font-weight: 600;">Version x.x.x is available!</p>
-                <div id="update-action-container" style="display: flex; justify-content: center; gap: 15px;">
-                    <button id="btn-update-download" class="btn primary"><i class="fa-solid fa-download"></i> Download</button>
-                    <button id="btn-update-cancel" class="btn secondary">Cancel</button>
+            
+            <h2>Update Available</h2>
+            <p id="update-version-text" class="subtitle">Version x.x.x is available!</p>
+            
+            <div class="progress-container hidden" id="update-progress-container">
+                <div class="progress-header">
+                    <span>Downloading...</span>
+                    <span id="update-progress-text">0%</span>
                 </div>
-                <div id="update-progress-container" class="hidden" style="margin-top: 20px;">
-                    <p id="update-progress-text" style="margin-bottom: 10px; font-weight: bold; color: #475569;">Downloading: 0%</p>
-                    <div class="progress-bar" style="width: 100%; height: 12px; background: #e2e8f0; border-radius: 6px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);">
-                        <div id="update-progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.2s ease;"></div>
-                    </div>
+                <div class="progress-track">
+                    <div id="update-progress-fill" class="progress-fill"></div>
                 </div>
-                <div id="update-install-container" class="hidden" style="margin-top: 20px;">
-                    <button id="btn-update-install" class="btn primary" style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); border: none;"><i class="fa-solid fa-power-off"></i> Install & Restart</button>
-                </div>
+            </div>
+
+            <div class="modal-actions" id="update-action-container">
+                <button class="btn-modal secondary" id="btn-update-cancel">Later</button>
+                <button class="btn-modal primary" id="btn-update-download">Download Update</button>
+            </div>
+            
+            <div class="modal-actions hidden" id="update-install-container" style="margin-top: 15px;">
+                <button class="btn-modal install" id="btn-update-install" style="display: block; width: 100%;"><i class="fa-solid fa-power-off"></i> Install & Restart</button>
             </div>
         </div>
     </div>
 
     <!-- User Manual Modal -->
     <div id="manual-modal" class="modal hidden">
-        <div class="modal-content" style="max-width: 800px; height: 80vh;">
+        <div class="modal-modern" style="max-width: 800px; height: 80vh; text-align: left; overflow: hidden;">
             <span class="close-modal" id="close-manual">&times;</span>
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 1rem; margin-bottom: 1rem;">
-                <h2><i class="fa-solid fa-book"></i> User Manual</h2>
+                <h2 style="text-align: center;"><i class="fa-solid fa-book"></i> User Manual</h2>
             </div>
             <div class="manual-content-body" style="overflow-y: auto; height: calc(100% - 60px); text-align: left; padding-right: 1rem; line-height: 1.6;">
                 <h3>Hallade Curve Realignment</h3>
@@ -246,7 +252,7 @@
 
     <!-- Change Log Modal -->
     <div id="changelog-modal" class="modal hidden">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-modern" style="max-width: 600px; text-align: left;">
             <span class="close-modal" id="close-changelog">&times;</span>
             <h2><i class="fa-solid fa-clock-rotate-left"></i> Version History</h2>
             <div id="changelog-list" class="changelog-item" style="max-height: 400px; overflow-y: auto; text-align: left; margin-top: 20px; line-height: 1.6;">
@@ -260,7 +266,7 @@
 
     <!-- Credits Modal -->
     <div id="credits-modal" class="modal hidden">
-        <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <div class="modal-modern" style="max-width: 400px;">
             <span class="close-modal" id="close-credits">&times;</span>
             <h2><i class="fa-solid fa-star"></i> Credits</h2>
             <div style="margin: 20px 0; line-height: 1.6;">

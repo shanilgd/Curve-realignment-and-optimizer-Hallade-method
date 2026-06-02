@@ -707,3 +707,142 @@ td:nth-child(9), th:nth-child(9) {
 }
 
 .hidden { display: none !important; }
+
+
+/* ----- MODERN MODAL REDESIGN ----- */
+.modal-modern {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 40px;
+    width: 90%; max-width: 420px;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    position: relative;
+    overflow: hidden;
+    color: var(--text-main);
+}
+
+.modal-modern::before {
+    content: ''; position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
+    width: 200px; height: 100px; background: rgba(59, 130, 246, 0.3);
+    filter: blur(60px); border-radius: 50%; z-index: -1; pointer-events: none;
+}
+
+@keyframes modalPop {
+    0% { transform: scale(0.95) translateY(20px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.modal-modern h2 {
+    margin: 0 0 10px 0; font-size: 1.8rem; font-weight: 700;
+    background: linear-gradient(to right, #60a5fa, #a78bfa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.modal-modern p.subtitle {
+    color: var(--text-muted); font-size: 1.05rem; margin-bottom: 30px; line-height: 1.5;
+}
+
+.progress-container {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.progress-header {
+    display: flex; justify-content: space-between; margin-bottom: 12px;
+    font-size: 0.9rem; font-weight: 600; color: #cbd5e1;
+}
+
+.progress-track {
+    width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px; overflow: hidden; position: relative;
+}
+
+.progress-fill {
+    width: 0%; height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    border-radius: 4px;
+    position: relative;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+    transition: width 0.3s ease;
+}
+
+.progress-fill::after {
+    content: ""; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+    background-image: linear-gradient(
+        -45deg, 
+        rgba(255, 255, 255, 0.2) 25%, transparent 25%, 
+        transparent 50%, rgba(255, 255, 255, 0.2) 50%, 
+        rgba(255, 255, 255, 0.2) 75%, transparent 75%, transparent
+    );
+    background-size: 20px 20px;
+    animation: moveStripes 1s linear infinite;
+}
+
+@keyframes moveStripes {
+    0% { background-position: 0 0; }
+    100% { background-position: 20px 0; }
+}
+
+.modal-actions {
+    display: flex; gap: 15px; justify-content: center;
+}
+
+.btn-modal {
+    flex: 1; padding: 12px 0; border-radius: 12px; font-weight: 600; font-size: 1rem;
+    cursor: pointer; transition: all 0.2s; border: none; font-family: 'Outfit', sans-serif;
+}
+
+.btn-modal.primary {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+.btn-modal.primary:hover {
+    transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6); filter: brightness(1.1);
+}
+
+.btn-modal.secondary {
+    background: rgba(255, 255, 255, 0.1); color: var(--text-main);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.btn-modal.secondary:hover {
+    background: rgba(255, 255, 255, 0.15); transform: translateY(-2px);
+}
+
+.btn-modal.install {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); color: white;
+}
+.btn-modal.install:hover {
+    transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6); filter: brightness(1.1);
+}
+
+/* Header Action Button Styles */
+.header-actions {
+    display: flex; gap: 12px; align-items: center;
+}
+.btn-modern {
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-main); padding: 0 16px; height: 40px; border-radius: 20px;
+    font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+}
+.btn-modern:hover {
+    background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.btn-update { border-color: rgba(96, 165, 250, 0.3); color: #bfdbfe; }
+.btn-update:hover { background: rgba(59, 130, 246, 0.15); border-color: rgba(96, 165, 250, 0.5); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2); }
+.btn-icon-only { width: 40px; height: 40px; padding: 0; justify-content: center; border-radius: 50%; }
+.btn-credits { border-color: rgba(251, 191, 36, 0.3); color: #fef3c7; }
+.btn-credits:hover { background: rgba(245, 158, 11, 0.15); border-color: rgba(251, 191, 36, 0.5); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2); }
+.btn-changelog { border-color: rgba(52, 211, 153, 0.3); color: #d1fae5; }
+.btn-changelog:hover { background: rgba(16, 185, 129, 0.15); border-color: rgba(52, 211, 153, 0.5); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2); }
+.btn-help { border-color: rgba(167, 139, 250, 0.3); color: #ede9fe; }
+.btn-help:hover { background: rgba(139, 92, 246, 0.15); border-color: rgba(167, 139, 250, 0.5); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2); }
+
