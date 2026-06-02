@@ -409,7 +409,7 @@ function renderTable() {
     });
 }
 
-// Inline updates of row values without re-rendering the entire table (improves performance)
+// Inline updates of row values without re-rendering the entire table (keeps input focus)
 function updateRowValues(idx) {
     recalculate();
     
@@ -431,8 +431,6 @@ function updateRowValues(idx) {
         tr.children[10].className = `text-center hover-cell ${slewClass}`;
         tr.children[10].textContent = row.corrSlew.toFixed(1);
     });
-}`;
-    tr.children[10].textContent = row.corrSlew.toFixed(1);
 }
 
 // Update charts with current dataset
