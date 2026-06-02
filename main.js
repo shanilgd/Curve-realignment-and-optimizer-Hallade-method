@@ -25,6 +25,41 @@ app.whenReady().then(() => {
 
     autoUpdater.checkForUpdatesAndNotify();
 
+    let isManualUpdateCheck = false;
+
+    ipcMain.handle('check-for-updates', async () => {
+        isManualUpdateCheck = true;
+        try {
+            await autoUpdater.checkForUpdates();
+            return { success: true };
+        } catch (error) {
+            isManualUpdateCheck = false;
+            return { success: false, error: error.message };
+        }
+    });
+
+    autoUpdater.on('update-not-available', () => {
+        if (isManualUpdateCheck) {
+            dialog.showMessageBox({
+                type: 'info',
+                title: 'Up to Date',
+                message: 'You are already running the latest version.'
+            });
+            isManualUpdateCheck = false;
+        }
+    });
+
+    autoUpdater.on('error', (err) => {
+        if (isManualUpdateCheck) {
+            dialog.showMessageBox({
+                type: 'error',
+                title: 'Update Error',
+                message: 'Error checking for updates: ' + err.message
+            });
+            isManualUpdateCheck = false;
+        }
+    });
+
     autoUpdater.on('update-available', () => {
         dialog.showMessageBox({
             type: 'info',

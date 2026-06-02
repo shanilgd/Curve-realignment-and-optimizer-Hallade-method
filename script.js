@@ -553,3 +553,33 @@ tableBody.addEventListener('mouseout', (e) => {
     }
 });
 
+
+  // Check for Updates
+  const btnCheckUpdate = document.getElementById('btn-check-update');
+  if (btnCheckUpdate) {
+      btnCheckUpdate.addEventListener('click', async () => {
+          btnCheckUpdate.disabled = true;
+          const originalHTML = btnCheckUpdate.innerHTML;
+          btnCheckUpdate.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
+          
+          try {
+              const res = await window.electronAPI.checkForUpdates();
+              if (res.success) {
+                  // If update is available, the main process will show a dialog.
+                  // We just reset the button after a delay so it doesn't stay spinning forever.
+                  setTimeout(() => {
+                      btnCheckUpdate.disabled = false;
+                      btnCheckUpdate.innerHTML = originalHTML;
+                  }, 3000);
+              } else {
+                  showStatus(`Update check failed: ${res.error}`, "error");
+                  btnCheckUpdate.disabled = false;
+                  btnCheckUpdate.innerHTML = originalHTML;
+              }
+          } catch (e) {
+              showStatus(`Update check failed: ${e.message}`, "error");
+              btnCheckUpdate.disabled = false;
+              btnCheckUpdate.innerHTML = originalHTML;
+          }
+      });
+  }
