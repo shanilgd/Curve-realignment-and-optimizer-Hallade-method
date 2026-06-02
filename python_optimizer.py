@@ -68,7 +68,7 @@ def main():
             x[active_indices] = x_active
             d = x - v_ex
             s = np.cumsum(d)
-            m = np.cumsum(s)
+            m = np.cumsum(np.insert(s[:-1], 0, 0))
             return -2 * m
 
         # Dynamic bounds for reverse/simple curves based on existing versine direction
@@ -151,7 +151,7 @@ def main():
         def calc_slew_profile(x):
             d = x - v_ex
             s = np.cumsum(d)
-            m = np.cumsum(s)
+            m = np.cumsum(np.insert(s[:-1], 0, 0))
             raw_slew = -2 * m
             corr = raw_slew[-1] * np.arange(N) / (N - 1)
             return raw_slew - corr

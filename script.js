@@ -305,7 +305,7 @@ function recalculate() {
     curveData.forEach((row) => {
         row.diff = row.pro - row.exg;
         row.firstSum = prevFirstSum + row.diff;
-        row.secondSum = prevSecondSum + row.firstSum;
+        row.secondSum = prevSecondSum + prevFirstSum;
         row.rawSlew = -2 * row.secondSum;
         
         prevFirstSum = row.firstSum;
