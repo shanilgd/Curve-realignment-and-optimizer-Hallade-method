@@ -1,12 +1,13 @@
-﻿const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
 const fs = require('fs');
 const { spawn } = require('child_process');
 const XLSX = require('xlsx');
 
+let mainWindow;
 function createWindow() {
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 1280,
         height: 850,
         icon: path.join(__dirname, 'icon.png'),
@@ -34,7 +35,7 @@ app.whenReady().then(() => {
         try {
             if (!app.isPackaged) {
                 // Simulate an update in Dev mode for testing
-                setTimeout(() => mainWindow.webContents.send('update-available', '1.0.6-dev'), 1500);
+                setTimeout(() => { if(mainWindow && mainWindow.webContents) mainWindow.webContents.send('update-not-available'); }, 1500);
                 return { success: true };
             }
             await autoUpdater.checkForUpdates();
@@ -50,10 +51,10 @@ app.whenReady().then(() => {
             let progress = 0;
             const interval = setInterval(() => {
                 progress += 10;
-                mainWindow.webContents.send('update-progress', progress);
+                if(mainWindow && mainWindow.webContents) mainWindow.webContents.send('update-progress', progress);
                 if (progress >= 100) {
                     clearInterval(interval);
-                    mainWindow.webContents.send('update-downloaded');
+                    if(mainWindow && mainWindow.webContents) mainWindow.webContents.send('update-downloaded');
                 }
             }, 500);
             return { success: true };
@@ -71,20 +72,25 @@ app.whenReady().then(() => {
     });
 
     autoUpdater.on('update-available', (info) => {
-        mainWindow.webContents.send('update-available', info.version);
+        if(mainWindow && mainWindow.webContents) mainWindow.webContents.send('update-available', info.version);
     });
 
     autoUpdater.on('download-progress', (progressObj) => {
-        mainWindow.webContents.send('update-progress', progressObj.percent);
+        if(mainWindow && mainWindow.webContents) mainWindow.webContents.send('update-progress', progressObj.percent);
     });
 
     autoUpdater.on('update-downloaded', () => {
-        mainWindow.webContents.send('update-downloaded');
+        if(mainWindow && mainWindow.webContents) mainWindow.webContents.send('update-downloaded');
     });
 
     autoUpdater.on('update-not-available', () => {
-        mainWindow.webContents.send('update-not-available');
+        if(mainWindow && mainWindow.webContents) mainWindow.webContents.send('update-not-available');
     });
+
+    autoUpdater.on('error', (err) => {
+        if(mainWindow && mainWindow.webContents) mainWindow.webContents.send('update-error', err.message || err.toString());
+    });
+
 
 
     app.on('activate', function () {

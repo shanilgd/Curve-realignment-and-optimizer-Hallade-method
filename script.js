@@ -620,17 +620,32 @@ tableBody.addEventListener('mouseout', (e) => {
   const changelogModal = document.getElementById('changelog-modal');
   const creditsModal = document.getElementById('credits-modal');
 
-  document.getElementById('btn-check-updates').addEventListener('click', () => {
+  document.getElementById('btn-check-updates').addEventListener('click', async () => {
       const btn = document.getElementById('btn-check-updates');
-      const originalText = btn.innerHTML;
+      const originalText = '<i class="fa-solid fa-cloud-arrow-down"></i> Updates';
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
       btn.disabled = true;
-      window.electronAPI.checkForUpdates();
       
-      setTimeout(() => {
+      try {
+          const result = await window.electronAPI.checkForUpdates();
+          if (result && !result.success) {
+              showToast("Update error: " + result.error, "error");
+              btn.innerHTML = originalText;
+              btn.disabled = false;
+          }
+      } catch (err) {
+          showToast("Update error: " + err.message, "error");
           btn.innerHTML = originalText;
           btn.disabled = false;
-      }, 3000); // Re-enable button after timeout if no response
+      }
+      
+      // Events update-available, update-not-available, or update-error will reset the button if successful
+      setTimeout(() => {
+          if (btn.disabled) {
+              btn.innerHTML = originalText;
+              btn.disabled = false;
+          }
+      }, 5000);
   });
 
   document.getElementById('btn-help').addEventListener('click', () => {
