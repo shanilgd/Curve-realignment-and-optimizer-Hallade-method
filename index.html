@@ -1,0 +1,190 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway Curve Realignment Tool</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="xlsx.full.min.js"></script>
+    <script src="chart.js"></script>
+</head>
+<body>
+    <!-- Glassmorphic Background Globes -->
+    <div class="background-globes">
+        <div class="globe globe-1"></div>
+        <div class="globe globe-2"></div>
+        <div class="globe globe-3"></div>
+    </div>
+
+    <div class="app-container">
+        <header class="glass-header">
+            <div class="header-main">
+                <h1>
+                    <i class="fa-solid fa-road" style="color: #3b82f6;"></i> Curve Realignment Tool
+                    <span class="version-tag">HALLADE METHOD</span>
+                </h1>
+                <p class="subtitle">High-Speed Railway Curve Realignment and Slew Optimizer</p>
+            </div>
+            <div class="header-buttons">
+                <button id="btn-download-template" class="btn secondary">
+                    <i class="fa-solid fa-file-excel" style="color: #10b981;"></i> Download Template
+                </button>
+                <button id="btn-import-excel" class="btn secondary">
+                    <i class="fa-solid fa-file-import" style="color: #10b981;"></i> Browse & Import Excel
+                </button>
+                <button id="btn-export-excel" class="btn secondary" disabled>
+                    <i class="fa-solid fa-download" style="color: #60a5fa;"></i> Export Excel
+                </button>
+                <button id="btn-clear" class="btn danger">
+                    <i class="fa-solid fa-trash-can"></i> Clear
+                </button>
+            </div>
+        </header>
+
+        <main class="main-grid">
+            <!-- Setup & Config Panel (Left Column) -->
+            <div class="left-panel">
+                <section class="card config-card fade-in">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-gears"></i> Station Configuration</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="stns-before">Stations Before Curve (Negative):</label>
+                            <input type="text" id="stns-before" placeholder="5 (e.g. -5, -4, -3...)">
+                        </div>
+                        <div class="form-group">
+                            <label for="stns-curve">Stations In Curve (0 to N):</label>
+                            <input type="text" id="stns-curve" placeholder="31 (e.g. 0 to 30)">
+                        </div>
+                        <div class="form-group">
+                            <label for="stns-after">Stations After Curve (Positive):</label>
+                            <input type="text" id="stns-after" placeholder="5 (e.g. 1, 2, 3...)">
+                        </div>
+                        <button id="btn-generate-table" class="btn primary w-100">
+                            <i class="fa-solid fa-table-cells"></i> Generate Station Grid
+                        </button>
+                    </div>
+                </section>
+
+                <section class="card optimizer-card fade-in">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-bolt-lightning"></i> Slew Optimizer (SciPy)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="slew-limit">Maximum Slew Limit (mm):</label>
+                            <input type="number" id="slew-limit" placeholder="e.g. 30 (Blank = auto)" min="5" max="200">
+                        </div>
+                        <button id="btn-optimize" class="btn success w-100" disabled>
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Run Realignment Optimizer
+                        </button>
+                        <div id="optimization-status" class="status-msg hidden"></div>
+                    </div>
+                </section>
+
+                <section class="card stats-card fade-in">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-chart-pie"></i> Curve Summary</h2>
+                    </div>
+                    <div class="card-body stats-list">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Stations</span>
+                            <span id="stat-total-stns" class="stat-value">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Versine</span>
+                            <span id="stat-total-versine" class="stat-value">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Max Slew</span>
+                            <span id="stat-max-slew" class="stat-value">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Curve Smoothness</span>
+                            <span id="stat-smoothness" class="stat-value">-</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Table & Plots Section (Right Column) -->
+            <div class="right-panel">
+                <!-- Tabs for Right Side (Table vs Charts) -->
+                <div class="main-tabs">
+                    <button id="tab-table" class="main-tab-btn active"><i class="fa-solid fa-list-check"></i> Alignment Data Grid</button>
+                    <button id="tab-charts" class="main-tab-btn"><i class="fa-solid fa-chart-line"></i> Graphical Profiles</button>
+                </div>
+
+                <!-- Table Content -->
+                <div id="content-table" class="main-content-tab active">
+                    <div class="card data-grid-card">
+                        <div class="grid-container">
+                            <table id="realignment-table">
+                                <thead>
+                                    <tr>
+                                        <th>Stn No</th>
+                                        <th>Existing Versine (mm)</th>
+                                        <th>Proposed Versine (mm)</th>
+                                          <th>Max Slew In</th>
+                                          <th>Max Slew Out</th>
+                                        <th>Difference (D)</th>
+                                        <th>First Sum (E)</th>
+                                        <th>Second Sum (F)</th>
+                                        <th>Raw Slew (G)</th>
+                                        <th>Linear Corr (H)</th>
+                                        <th>Corrected Slew (I)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    <tr>
+                                        <td colspan="11" class="empty-state">No stations generated. Click "Browse & Import Excel" or "Generate Station Grid" to begin.</td>
+                                    </tr>
+                                </tbody>
+                                  <tfoot id="table-foot" class="hidden">
+                                      <tr style="background: rgba(255, 255, 255, 0.05); border-top: 2px solid var(--card-border); font-weight: 700;">
+                                          <td style="text-align: center; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">TOTAL:</td>
+                                          <td id="total-exg" style="text-align: center; color: #60a5fa; font-size: 1rem;">0</td>
+                                          <td id="total-pro" style="text-align: center; color: #10b981; font-size: 1rem;">0</td>
+                                          <td colspan="8"></td>
+                                      </tr>
+                                  </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Content -->
+                <div id="content-charts" class="main-content-tab">
+                    <div class="charts-grid">
+                        <div class="card chart-card">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-signature"></i> Versine Profile (Existing vs. Proposed)</h3>
+                            </div>
+                            <div class="card-body chart-body">
+                                <canvas id="chart-versines"></canvas>
+                            </div>
+                        </div>
+                        <div class="card chart-card">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-arrows-left-right"></i> Slew Profile (Corrected Shift)</h3>
+                            </div>
+                            <div class="card-body chart-body">
+                                <canvas id="chart-slews"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="custom-tooltip" class="calc-tooltip"></div>
+    <!-- Script Entry -->
+    <script src="script.js"></script>
+</body>
+</html>

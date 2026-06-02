@@ -1,0 +1,47 @@
+{
+  "name": "curve-realignment-calculator",
+  "productName": "Railway Curve Realignment Tool",
+  "version": "1.0.1",
+  "description": "Railway Curve Realignment using the Hallade Method and SciPy Optimization",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.3",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^26.7.0"
+  },
+  "build": {
+    "appId": "com.antigravity.curverealignment",
+    "productName": "Railway Curve Realignment Tool",
+    "artifactName": "Railway-Curve-Realignment-Setup-${version}.${ext}",
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "verifyUpdateCodeSignature": false,
+      "forceCodeSigning": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "shanilgd",
+        "repo": "Curve-realignment-and-optimizer-Hallade-method"
+      }
+    ],
+    "extraResources": [
+      "python_optimizer.py"
+    ]
+  }
+}

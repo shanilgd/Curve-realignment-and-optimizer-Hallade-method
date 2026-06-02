@@ -1,0 +1,5 @@
+﻿node_modules/
+dist/
+.env
+payload.json
+temp_*.py
