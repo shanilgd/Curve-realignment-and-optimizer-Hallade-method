@@ -332,13 +332,16 @@ function recalculate() {
     const maxS = Math.max(...curveData.map(r => Math.abs(r.corrSlew)));
     statMaxSlew.textContent = `${maxS.toFixed(1)} mm`;
     
-    // Smoothness (sum of squared second differences of proposed)
+    // Smoothness (normalized average of squared second differences of proposed)
     let smoothVal = 0;
+    let count = 0;
     for (let i = 2; i < N; i++) {
         const diff2 = curveData[i].pro - 2 * curveData[i-1].pro + curveData[i-2].pro;
         smoothVal += diff2 * diff2;
+        count++;
     }
-    statSmoothness.textContent = smoothVal.toFixed(0);
+    const avgSmoothness = count > 0 ? (smoothVal / count) : 0;
+    statSmoothness.textContent = avgSmoothness.toFixed(2);
 }
 
 // Render Table rows

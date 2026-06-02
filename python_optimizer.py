@@ -203,7 +203,12 @@ def main():
 
         final_slew = calc_slew_profile(current_x)
         final_max_slew = np.max(np.abs(final_slew))
+        
         final_smoothness = calc_smoothness(current_x)
+        if len(current_x) >= 3:
+            final_smoothness = final_smoothness / (len(current_x) - 2)
+        else:
+            final_smoothness = 0.0
         
         output = {
             "success": True,

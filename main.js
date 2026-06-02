@@ -82,6 +82,10 @@ app.whenReady().then(() => {
         mainWindow.webContents.send('update-downloaded');
     });
 
+    autoUpdater.on('update-not-available', () => {
+        mainWindow.webContents.send('update-not-available');
+    });
+
 
     app.on('activate', function () {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
