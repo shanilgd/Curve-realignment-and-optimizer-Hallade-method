@@ -263,7 +263,8 @@
             <span class="close-modal" id="close-changelog">&times;</span>
             <h2><i class="fa-solid fa-clock-rotate-left"></i> Version History</h2>
             <div id="changelog-list" class="changelog-item" style="max-height: 400px; overflow-y: auto; text-align: left; margin-top: 20px; line-height: 1.6;">
-                <p><strong>v1.0.6</strong> - Fixed updater scoping bug causing fatal silent errors. Added global UI toast notification system for instant update feedback.</p>
+                <p><strong>v1.0.7</strong> - Relocated update notification to bottom-center with high-contrast styling for better visibility. Fixed Excel import to properly display versines with 0 value instead of blank cells.</p>
+                  <p><strong>v1.0.6</strong> - Fixed updater scoping bug causing fatal silent errors. Added global UI toast notification system for instant update feedback.</p>
                   <p><strong>v1.0.5</strong> - UI Refinements, Earthwork UI Matching, Progress bars, and new 3D Icon.</p>
                 <p><strong>v1.0.4</strong> - Fixed Hallade mathematical shift bug in Second Summation calculation.</p>
                 <p><strong>v1.0.3</strong> - UI refinements, auto-updater implementation, and bug fixes.</p>
@@ -279,7 +280,7 @@
             <h2><i class="fa-solid fa-star"></i> Credits</h2>
             <div style="margin: 20px 0; line-height: 1.6;">
                 <p><strong>Railway Curve Realignment Tool</strong></p>
-                <p>Version <span id="credits-version">1.0.6</span></p>
+                <p>Version <span id="credits-version">1.0.7</span></p>
                 <p style="margin-top: 10px;">Built by <strong>SHANIL G D (SSE PWAY)</strong></p>
             </div>
         </div>
@@ -287,7 +288,7 @@
 
 
     <!-- Global Toast Notification -->
-    <div id="global-toast" class="hidden fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-medium shadow-lg transition-all duration-300 z-50 opacity-0 transform translate-y-[-20px] pointer-events-none"></div>
+    <div id="global-toast" class="global-toast"></div>
 
     <script src="script.js"></script>
 

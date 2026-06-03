@@ -846,3 +846,41 @@ td:nth-child(9), th:nth-child(9) {
 .btn-help { border-color: rgba(167, 139, 250, 0.3); color: #ede9fe; }
 .btn-help:hover { background: rgba(139, 92, 246, 0.15); border-color: rgba(167, 139, 250, 0.5); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2); }
 
+
+/* Global Toast Notification */
+.global-toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.global-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.global-toast.toast-success {
+    background-color: var(--success, #10b981);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.global-toast.toast-error {
+    background-color: var(--danger, #ef4444);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.global-toast.toast-info {
+    background-color: var(--primary, #3b82f6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}

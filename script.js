@@ -361,8 +361,8 @@ function renderTable() {
         
         tr.innerHTML = `
             <td>${row.stn}</td>
-            <td><input type="number" class="cell-input cell-exg" data-idx="${idx}" value="${row.exg !== 0 ? row.exg : ''}" placeholder="0"></td>
-            <td><input type="number" class="cell-input cell-pro" data-idx="${idx}" value="${row.pro !== 0 ? row.pro : ''}" placeholder="0"></td>
+            <td><input type="number" class="cell-input cell-exg" data-idx="${idx}" value="${row.exg !== undefined && row.exg !== null ? row.exg : ''}" placeholder="0"></td>
+            <td><input type="number" class="cell-input cell-pro" data-idx="${idx}" value="${row.pro !== undefined && row.pro !== null ? row.pro : ''}" placeholder="0"></td>
             <td><input type="number" class="cell-input cell-max-in" data-idx="${idx}" placeholder="-" value="${row.maxIn !== undefined ? row.maxIn : ''}"></td>
             <td><input type="number" class="cell-input cell-max-out" data-idx="${idx}" placeholder="-" value="${row.maxOut !== undefined ? row.maxOut : ''}"></td>
             <td class="text-center hover-cell" data-idx="${idx}" data-col="D">${row.diff}</td>
@@ -465,22 +465,10 @@ function showToast(message, type = 'success') {
     if (!toast) return;
     toast.textContent = message;
     
-    toast.className = 'fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-medium shadow-lg transition-all duration-300 z-[100] pointer-events-none transform translate-y-0 opacity-100';
-    
-    if (type === 'error') {
-        toast.classList.add('bg-red-500');
-    } else if (type === 'success') {
-        toast.classList.add('bg-green-500');
-    } else {
-        toast.classList.add('bg-blue-500');
-    }
+    toast.className = `global-toast toast-${type} show`;
     
     setTimeout(() => {
-        toast.classList.remove('opacity-100', 'translate-y-0');
-        toast.classList.add('opacity-0', 'translate-y-[-20px]');
-        setTimeout(() => {
-            toast.classList.add('hidden');
-        }, 300);
+        toast.classList.remove('show');
     }, 4000);
 }
 
