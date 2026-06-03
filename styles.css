@@ -431,7 +431,7 @@ td {
 }
 
 /* Define explicit column widths */
-th:nth-child(1), td:nth-child(1) { width: 80px; }
+th:nth-child(1), td:nth-child(1) { width: 100px; }
 th:nth-child(2), td:nth-child(2) { width: 140px; }
 th:nth-child(3), td:nth-child(3) { width: 140px; }
 th:nth-child(4), td:nth-child(4) { width: 110px; }
@@ -893,7 +893,7 @@ td:nth-child(9), th:nth-child(9) {
 }
 
 .proposed-input {
-    width: 80px;
+    width: 100px;
     background: rgba(15, 23, 42, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: var(--text-main);
