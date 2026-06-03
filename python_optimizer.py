@@ -1,40 +1,25 @@
-﻿import sys
+import sys
 import json
 import numpy as np
-from scipy.optimize import minimize
+from scipy.optimize import minimize, LinearConstraint
 
 def main():
     try:
-        # Read JSON input from stdin
-        input_data = json.loads(sys.stdin.read())
-        
-        stns = input_data.get('stns', [])
-        exg = input_data.get('v_ex', [])
-        target_limit = input_data.get('slew_limit', None)
-        limit_in = input_data.get('max_slew_in', [])
-        limit_out = input_data.get('max_slew_out', [])
-        
-        N = len(stns)
-        if N < 5:
-            print(json.dumps({"success": False, "error": f"Need at least 5 stations (found {N})"}))
-            return
+        input_file = sys.argv[1]
+        with open(input_file, 'r') as f:
+            data = json.load(f)
             
-        v_ex = np.array(exg, dtype=float)
+        v_ex = np.array(data['versines'], dtype=float)
+        target_limit = data.get('target_limit', None)
+        limit_in = data.get('limit_in', [])
+        limit_out = data.get('limit_out', [])
         
-        # Identify active stations for optimization
+        N = len(v_ex)
+        
         non_zero_indices = np.where(np.abs(v_ex) > 0)[0]
         if len(non_zero_indices) == 0:
-            # If all are 0, proposed is all 0
             v_pro = np.zeros(N, dtype=int)
-            print(json.dumps({
-                "success": True,
-                "v_pro": v_pro.tolist(),
-                "slew": [0.0]*N,
-                "max_slew": 0.0,
-                "smoothness": 0.0,
-                "limit_used": 0.0,
-                "warning": "All existing versines were zero."
-            }))
+            print(json.dumps({"success": True, "v_pro": v_pro.tolist(), "slew": [0.0]*N, "max_slew": 0.0, "smoothness": 0.0, "limit_used": 0.0, "warning": "All existing versines were zero."}))
             return
             
         first_active = max(0, non_zero_indices[0] - 3)
@@ -45,74 +30,82 @@ def main():
         active_indices = np.where(active_mask)[0]
         n_active = len(active_indices)
         
-        # Optimization functions
+        # Build Objective Matrix P
+        # f(x) = (D x)^T (D x)
+        D = np.zeros((N-2, N))
+        for i in range(N-2):
+            D[i, i] = 1.0
+            D[i, i+1] = -2.0
+            D[i, i+2] = 1.0
+        
+        # Z maps x_active to x
+        Z = np.zeros((N, n_active))
+        for j, idx in enumerate(active_indices):
+            Z[idx, j] = 1.0
+            
+        DZ = D @ Z
+        P_active = 2.0 * (DZ.T @ DZ)
+        
         def objective(x_active):
-            x = np.zeros(N)
-            x[active_indices] = x_active
-            return np.sum(np.diff(x, n=2)**2)
+            return 0.5 * (x_active.T @ P_active @ x_active)
+            
+        def jacobian(x_active):
+            return P_active @ x_active
 
-        def constr_sum(x_active):
-            x = np.zeros(N)
-            x[active_indices] = x_active
-            return np.sum(x) - np.sum(v_ex)
-
-        def constr_moment(x_active):
-            x = np.zeros(N)
-            x[active_indices] = x_active
-            d = x - v_ex
-            weights = np.arange(N, 0, -1)
-            return np.sum(weights * d)
-
-        def get_slew(x_active):
-            x = np.zeros(N)
-            x[active_indices] = x_active
-            d = x - v_ex
-            s = np.cumsum(d)
-            m = np.cumsum(np.insert(s[:-1], 0, 0))
-            return -2 * m
-
-        # Dynamic bounds for reverse/simple curves based on existing versine direction
+        # Build Slew Matrix
+        L = np.tril(np.ones((N, N)))
+        L_shift = np.tril(np.ones((N, N)), -1)
+        M_slew = -2.0 * L_shift @ L
+        
+        # A_slew maps x_active to slew
+        A_slew = M_slew @ Z
+        
+        # Build Equality Constraints
+        A_eq1 = np.ones(n_active)
+        b_eq1 = np.sum(v_ex)
+        
+        weights = np.arange(N, 0, -1)
+        A_eq2 = weights[active_indices]
+        b_eq2 = np.sum(weights * v_ex)
+        
+        A_eq = np.vstack([A_eq1, A_eq2])
+        b_eq = np.array([b_eq1, b_eq2])
+        
+        eq_constraint = LinearConstraint(A_eq, b_eq, b_eq)
+        
+        # Build bounds
         bounds = []
         for idx in active_indices:
             if v_ex[idx] >= 0:
                 bounds.append((0, 300))
             else:
                 bounds.append((-300, 0))
-
+                
         x0_active = v_ex[active_indices]
-
-        def get_corr_slew(x_active):
-            raw = get_slew(x_active)
-            corr = raw[-1] * np.arange(N) / (N - 1)
-            return raw - corr
-
+        
         def solve_for_limit(limit):
-            constraints = [
-                {'type': 'eq', 'fun': constr_sum},
-                {'type': 'eq', 'fun': constr_moment}
-            ]
+            fback = limit if limit is not None else 9999.0
             
-            # Use a large default if limit is None for open constraints
-            fallback = limit if limit is not None else 9999.0
+            l_in_arr = np.array([abs(float(limit_in[i])) if i < len(limit_in) and limit_in[i] is not None else fback for i in range(N)])
+            l_out_arr = np.array([abs(float(limit_out[i])) if i < len(limit_out) and limit_out[i] is not None else fback for i in range(N)])
             
-            for i in range(N):
-                l_in = limit_in[i] if i < len(limit_in) else None
-                l_out = limit_out[i] if i < len(limit_out) else None
-                
-                c_in = abs(float(l_in)) if l_in is not None else fallback
-                c_out = abs(float(l_out)) if l_out is not None else fallback
-                
-                constraints.append({'type': 'ineq', 'fun': (lambda idx=i, lim=c_out: lambda x_act: lim - get_corr_slew(x_act)[idx])()})
-                constraints.append({'type': 'ineq', 'fun': (lambda idx=i, lim=c_in: lambda x_act: get_corr_slew(x_act)[idx] + lim)()})
-                
-            return minimize(objective, x0_active, method='SLSQP', bounds=bounds, constraints=constraints, options={'maxiter': 500, 'ftol': 1e-6})
+            # lb <= A_slew @ x_active + M_slew @ (-v_ex) <= ub
+            # lb - M_slew @ (-v_ex) <= A_slew @ x_active <= ub - M_slew @ (-v_ex)
+            # base = M_slew @ (-v_ex) = - M_slew @ v_ex
+            base = - (M_slew @ v_ex)
+            
+            lb_slew = -l_in_arr - base
+            ub_slew = l_out_arr - base
+            
+            slew_constraint = LinearConstraint(A_slew, lb_slew, ub_slew)
+            
+            return minimize(objective, x0_active, method='SLSQP', jac=jacobian, bounds=bounds, constraints=[eq_constraint, slew_constraint], options={'maxiter': 500, 'ftol': 1e-6})
 
         res = None
         limit_used = None
         warning = None
         
         if target_limit is not None:
-            # Try user's specified limit
             res_target = solve_for_limit(target_limit)
             if res_target.success:
                 res = res_target
@@ -122,7 +115,6 @@ def main():
                 target_limit = None
                 
         if target_limit is None:
-            # Search for smallest feasible limit
             for limit in [10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 75.0, 100.0, 150.0, 200.0, 300.0]:
                 res_test = solve_for_limit(limit)
                 if res_test.success:
@@ -137,16 +129,24 @@ def main():
         x_opt = np.zeros(N)
         x_opt[active_indices] = res.x
 
-        # Integer refinement (coordinate descent)
+        # Simple integer rounding that preserves smoothness
         current_x = np.round(x_opt).astype(int)
         
-        # Balance sum exactly
         diff_sum = int(np.sum(current_x) - np.sum(v_ex))
+        
         if diff_sum != 0:
-            step = 1 if diff_sum < 0 else -1
+            step = -1 if diff_sum > 0 else 1
+            error = x_opt - current_x
+            
             for _ in range(abs(diff_sum)):
-                best_idx = active_indices[np.argmax(np.abs(current_x[active_indices]))]
-                current_x[best_idx] += step
+                if step == 1:
+                    best_idx_active = np.argmax(error[active_indices])
+                else:
+                    best_idx_active = np.argmin(error[active_indices])
+                    
+                actual_idx = active_indices[best_idx_active]
+                current_x[actual_idx] += step
+                error[actual_idx] -= step
 
         def calc_slew_profile(x):
             d = x - v_ex
@@ -158,49 +158,7 @@ def main():
 
         def calc_smoothness(x):
             return np.sum(np.diff(x, n=2)**2)
-
-        # Coordinate descent optimization
-        def get_cd_cost(x_act):
-            s = calc_slew_profile(x_act)
-            viol = 0.0
-            fback = limit_used if limit_used is not None else 9999.0
-            for i in range(N):
-                l_in = limit_in[i] if i < len(limit_in) else None
-                l_out = limit_out[i] if i < len(limit_out) else None
-                c_in = abs(float(l_in)) if l_in is not None else fback
-                c_out = abs(float(l_out)) if l_out is not None else fback
-                if s[i] < -c_in: viol += (-c_in - s[i])
-                elif s[i] > c_out: viol += (s[i] - c_out)
-            return np.max(np.abs(s)) + 0.005 * calc_smoothness(x_act) + 1000.0 * viol
             
-        current_cost = get_cd_cost(current_x)
-        improved = True
-        iterations = 0
-        while improved and iterations < 1000:
-            improved = False
-            for idx1 in active_indices:
-                for idx2 in active_indices:
-                    if idx1 == idx2:
-                        continue
-                    test_x = current_x.copy()
-                    test_x[idx1] += 1
-                    test_x[idx2] -= 1
-                    
-                    lim1 = (0, 300) if v_ex[idx1] >= 0 else (-300, 0)
-                    lim2 = (0, 300) if v_ex[idx2] >= 0 else (-300, 0)
-                    if not (lim1[0] <= test_x[idx1] <= lim1[1] and lim2[0] <= test_x[idx2] <= lim2[1]):
-                        continue
-                        
-                    test_cost = get_cd_cost(test_x)
-                    if test_cost < current_cost - 0.001:
-                        current_x = test_x
-                        current_cost = test_cost
-                        improved = True
-                        break
-                if improved:
-                    break
-            iterations += 1
-
         final_slew = calc_slew_profile(current_x)
         final_max_slew = np.max(np.abs(final_slew))
         
