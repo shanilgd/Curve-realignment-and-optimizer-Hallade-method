@@ -130,7 +130,7 @@ def main():
                 target_limit = None
                 
         if target_limit is None:
-            for limit in [10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 75.0, 100.0, 150.0, 200.0, 300.0, None]:
+            for limit in [10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 75.0, 100.0, 150.0, 200.0, 300.0, 400.0, 500.0, 600.0, 800.0, 1000.0, 1500.0, 2000.0, 3000.0, None]:
                 res_test = solve_for_limit(limit)
                 if res_test.success:
                     res = res_test
