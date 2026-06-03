@@ -884,3 +884,65 @@ td:nth-child(9), th:nth-child(9) {
     background-color: var(--primary, #3b82f6);
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
+/* LOCKED STATE STYLES */
+.input-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.proposed-input {
+    width: 80px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-main);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    text-align: right;
+    transition: all 0.3s;
+    padding-right: 40px;
+}
+
+.proposed-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.proposed-input.is-locked {
+    background: rgba(244, 63, 94, 0.1);
+    border-color: rgba(244, 63, 94, 0.4);
+    color: #fda4af;
+    font-weight: 700;
+}
+
+.lock-btn {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lock-btn:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.lock-btn.is-locked {
+    color: #f43f5e;
+}
+
+.lock-btn.is-locked:hover {
+    background: rgba(244, 63, 94, 0.2);
+}

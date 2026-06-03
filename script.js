@@ -240,7 +240,8 @@ btnOptimize.addEventListener('click', async () => {
     
     const max_slew_in = curveData.map(r => (r.maxIn === '' || r.maxIn === undefined || r.maxIn === null) ? null : parseFloat(r.maxIn));
     const max_slew_out = curveData.map(r => (r.maxOut === '' || r.maxOut === undefined || r.maxOut === null) ? null : parseFloat(r.maxOut));
-    const response = await window.electronAPI.runOptimization({ stns, v_ex, max_slew_in, max_slew_out, slew_limit: slewLimit });
+    const locked_versines = curveData.map(r => r.locked ? r.pro : null);
+    const response = await window.electronAPI.runOptimization({ stns, v_ex, max_slew_in, max_slew_out, slew_limit: slewLimit, locked_versines: locked_versines });
     btnOptimize.disabled = false;
     
     if (response.success) {
@@ -362,7 +363,14 @@ function renderTable() {
         tr.innerHTML = `
             <td>${row.stn}</td>
             <td><input type="number" class="cell-input cell-exg" data-idx="${idx}" value="${row.exg !== undefined && row.exg !== null ? row.exg : ''}" placeholder="0"></td>
-            <td><input type="number" class="cell-input cell-pro" data-idx="${idx}" value="${row.pro !== undefined && row.pro !== null ? row.pro : ''}" placeholder="0"></td>
+            <td>
+                  <div class="input-wrapper">
+                      <input type="number" class="cell-input cell-pro proposed-input ${row.locked ? 'is-locked' : ''}" data-idx="${idx}" value="${row.pro !== undefined && row.pro !== null ? row.pro : ''}" placeholder="0">
+                      <button class="lock-btn ${row.locked ? 'is-locked' : ''}" data-idx="${idx}" title="Toggle lock">
+                          <i class="fa-solid ${row.locked ? 'fa-lock' : 'fa-lock-open'}"></i>
+                      </button>
+                  </div>
+              </td>
             <td><input type="number" class="cell-input cell-max-in" data-idx="${idx}" placeholder="-" value="${row.maxIn !== undefined ? row.maxIn : ''}"></td>
             <td><input type="number" class="cell-input cell-max-out" data-idx="${idx}" placeholder="-" value="${row.maxOut !== undefined ? row.maxOut : ''}"></td>
             <td class="text-center hover-cell" data-idx="${idx}" data-col="D">${row.diff}</td>
@@ -408,6 +416,14 @@ function renderTable() {
         input.addEventListener('change', (e) => {
             const idx = parseInt(e.target.dataset.idx);
             curveData[idx].maxOut = e.target.value;
+        });
+    });
+    
+    document.querySelectorAll('.lock-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const idx = parseInt(e.currentTarget.dataset.idx);
+            curveData[idx].locked = !curveData[idx].locked;
+            renderTable();
         });
     });
 }

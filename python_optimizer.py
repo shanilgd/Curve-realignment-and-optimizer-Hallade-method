@@ -12,6 +12,7 @@ def main():
         target_limit = data.get('slew_limit', None)
         limit_in = data.get('max_slew_in', [])
         limit_out = data.get('max_slew_out', [])
+        locked_versines = data.get('locked_versines', [])
         
         N = len(v_ex)
         
@@ -67,8 +68,23 @@ def main():
         A_eq2 = weights[active_indices]
         b_eq2 = np.sum(weights * v_ex)
         
-        A_eq = np.vstack([A_eq1, A_eq2])
-        b_eq = np.array([b_eq1, b_eq2])
+        A_eq_list = [A_eq1, A_eq2]
+        b_eq_list = [b_eq1, b_eq2]
+        
+        if locked_versines:
+            for global_idx in range(min(N, len(locked_versines))):
+                if locked_versines[global_idx] is not None:
+                    # Find local index in active_indices
+                    local_idx_arr = np.where(active_indices == global_idx)[0]
+                    if len(local_idx_arr) > 0:
+                        local_idx = local_idx_arr[0]
+                        new_row = np.zeros(n_active)
+                        new_row[local_idx] = 1.0
+                        A_eq_list.append(new_row)
+                        b_eq_list.append(float(locked_versines[global_idx]))
+
+        A_eq = np.vstack(A_eq_list)
+        b_eq = np.array(b_eq_list)
         
         eq_constraint = LinearConstraint(A_eq, b_eq, b_eq)
         
@@ -137,6 +153,14 @@ def main():
             step = -1 if diff_sum > 0 else 1
             error = x_opt - current_x
             
+            if locked_versines:
+                for global_idx in range(min(N, len(locked_versines))):
+                    if locked_versines[global_idx] is not None:
+                        if step == 1:
+                            error[global_idx] = -np.inf
+                        else:
+                            error[global_idx] = np.inf
+                            
             for _ in range(abs(diff_sum)):
                 if step == 1:
                     best_idx_active = np.argmax(error[active_indices])
