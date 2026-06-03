@@ -197,7 +197,7 @@ def main():
             "slew": final_slew.tolist(),
             "max_slew": float(final_max_slew),
             "smoothness": float(final_smoothness),
-            "limit_used": float(limit_used)
+            "limit_used": float(limit_used) if limit_used is not None else None
         }
         if warning:
             output["warning"] = warning
