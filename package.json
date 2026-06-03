@@ -1,7 +1,7 @@
 {
   "name": "curve-realignment-calculator",
   "productName": "Railway Curve Realignment Tool",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Railway Curve Realignment using the Hallade Method and SciPy Optimization",
   "main": "main.js",
   "scripts": {

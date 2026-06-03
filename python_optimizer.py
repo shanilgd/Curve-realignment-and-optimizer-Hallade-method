@@ -5,14 +5,13 @@ from scipy.optimize import minimize, LinearConstraint
 
 def main():
     try:
-        input_file = sys.argv[1]
-        with open(input_file, 'r') as f:
-            data = json.load(f)
-            
-        v_ex = np.array(data['versines'], dtype=float)
-        target_limit = data.get('target_limit', None)
-        limit_in = data.get('limit_in', [])
-        limit_out = data.get('limit_out', [])
+        input_data = sys.stdin.read()
+        data = json.loads(input_data)
+        
+        v_ex = np.array(data.get('v_ex', []), dtype=float)
+        target_limit = data.get('slew_limit', None)
+        limit_in = data.get('max_slew_in', [])
+        limit_out = data.get('max_slew_out', [])
         
         N = len(v_ex)
         
